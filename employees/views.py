@@ -1,40 +1,34 @@
-from rest_framework import generics, status, views, permissions
+from rest_framework import generics, status, views
 
 from rest_framework.response import Response
-from rest_framework.authentication import TokenAuthentication
 
+from companies.models import Company
 from .models import Employee
 from .serializers import EmployeeSerializer
 from .permissions import IsCompanyEmployee
-
-# class EmployeeView(generics.GenericAPIView):
-
-#     serializer_class = EmployeeSerializer
-#     # renderer_classes = (UserRenderer,)
-
-#     def post(self, request):
-#         employee = request.data
-#         serializer = self.serializer_class(data=employee)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         user_data = serializer.data
-#         return Response(user_data, status=status.HTTP_201_CREATED)
 
 
 class EmployeeList(generics.ListCreateAPIView):
     serializer_class = EmployeeSerializer
     queryset = Employee.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
 
 
-    # def get(self, request, *args, **kwargs):
-    #     queryset = Employee.objects.all()
-    #     print(queryset)
-    #     serializer = EmployeeSerializer(queryset)
-    #     return Response(serializer.data)
+    def get_queryset(self):
+        queryset = super(EmployeeList, self).get_queryset()
+        queryset = queryset.filter(company__owner=self.request.user)
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        user = self.request.user
+        company = Company.objects.get(owner=user)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(company=company)
+        return Response(serializer.data)
 
 
 class EmployeeDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = EmployeeSerializer
     queryset = Employee.objects.all()
+    permission_classes = [IsCompanyEmployee]
