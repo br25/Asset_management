@@ -10,16 +10,17 @@ class AssetsType(models.TextChoices):
 
 
 class Status(models.TextChoices):
-    GOOD = "GOOD"
-    REPAIR = "REPAIR"
-    MISSING = "MISSING"
+    NEW = "NEW"
+    REFARBISHED = "REFARBISHED"
+    OLD = "OLD"
 
-class HandoverStatus(models.TextChoices):
+class AssetDuration(models.TextChoices):
     TAKE = "TAKE"
     RETURN = "RETURN"
 
     
 
-class ConditionStatus(models.TextChoices):
-    GOOD = "GOOD"
-    BROKEN = "BROKEN"
+class Condition(models.TextChoices):
+    GRANT = "GRANT"
+    TEMPORARY = "TEMPORART"
+    GIFT = "GIFT"

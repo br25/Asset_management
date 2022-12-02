@@ -6,3 +6,4 @@ class IsOwner(BasePermission):
         print(request.headers)
         print("called")
         return request.user == obj.owner.owner
+
